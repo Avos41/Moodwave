@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MoodWave — Your mood, your vibe</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            display: ["InterVariable", "Inter", "system-ui", "sans-serif"],
+            body: ["Inter", "ui-sans-serif", "system-ui"],
+          },
+          boxShadow: {
+            glow: "0 10px 25px rgba(0,0,0,0.15)",
+          },
+        }
+      }
+    }
+  </script>
+  <!-- Inter font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --gradient-0: 255, 99, 132;
+      --gradient-1: 54, 162, 235;
+      --glass: rgba(255,255,255,0.5);
+      --glass-dark: rgba(17,24,39,0.5);
+    }
+    .animated-gradient {
+      background: linear-gradient(120deg, rgba(var(--gradient-0),0.6), rgba(var(--gradient-1),0.6));
+      background-size: 200% 200%;
+      animation: moveGradient 12s ease-in-out infinite;
+      filter: saturate(1.1);
+    }
+    @keyframes moveGradient {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    .glass {
+      backdrop-filter: blur(14px) saturate(140%);
+      -webkit-backdrop-filter: blur(14px) saturate(140%);
+      background: var(--glass);
+      border: 1px solid rgba(255,255,255,0.25);
+    }
+    .dark .glass {
+      background: var(--glass-dark);
+      border-color: rgba(255,255,255,0.12);
+    }
+
+    .tap:active { transform: translateY(1px) scale(0.99); }
+
+    .focus-ring:focus-visible { outline: 3px solid rgba(59,130,246,0.7); outline-offset: 3px; border-radius: 14px; }
+
+    .switch { position: relative; width: 56px; height: 30px; }
+    .switch input { opacity: 0; width: 0; height: 0; }
+    .slider { position: absolute; cursor: pointer; inset: 0; border-radius: 9999px; transition: .25s; }
+    .slider::before { content: ""; position: absolute; height: 22px; width: 22px; left: 4px; top: 4px; border-radius: 9999px; transition: .25s; background: white; }
+    input:checked + .slider { background: rgba(255,255,255,0.25); }
+    input:not(:checked) + .slider { background: rgba(0,0,0,0.25); }
+    input:checked + .slider::before { transform: translateX(26px); }
+
+    .lift:hover { transform: translateY(-3px); box-shadow: 0 12px 30px rgba(0,0,0,0.15); }
+
+    .fade-up { opacity: 0; transform: translateY(8px); animation: fadeUp .6s ease forwards; }
+    @keyframes fadeUp { to { opacity: 1; transform: translateY(0); } }
+  </style>
+</head>
+<body class="min-h-screen antialiased text-slate-800 dark:text-slate-100 transition-colors duration-500">
+  <!-- Background Layer -->
+  <div id="bg" class="animated-gradient fixed inset-0 -z-10"></div>
+
+  <!-- Page -->
+  <main class="relative mx-auto max-w-5xl px-4 py-10 sm:py-14">
+    <!-- Header -->
+    <header class="flex items-center justify-between gap-4 mb-8">
+      <div class="flex items-center gap-3">
+        <div class="h-11 w-11 rounded-2xl grid place-items-center bg-white/70 dark:bg-black/30 shadow-glow">
+          <span class="text-2xl" aria-hidden="true">🎧</span>
+        </div>
+        <div>
+          <h1 class="font-black text-2xl sm:text-3xl tracking-tight">MoodWave</h1>
+          <p class="text-sm opacity-80 -mt-0.5">Your mood, your music, your vibe.</p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-4">
+        <!-- Theme Toggle -->
+        <label class="switch" aria-label="Toggle dark mode">
+          <input id="themeToggle" type="checkbox" aria-checked="false" />
+          <span class="slider"></span>
+        </label>
+      </div>
+    </header>
+
+    <!-- Hero / Selector Card -->
+    <section class="glass rounded-3xl p-6 sm:p-8 shadow-glow fade-up">
+      <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+        <div class="max-w-xl">
+          <h2 class="text-xl sm:text-2xl font-extrabold">How are you feeling today?</h2>
+          <p class="mt-2 text-sm sm:text-base opacity-90">Pick a mood to generate a personalized color theme and music suggestions. Designed with accessibility, micro‑interactions, and responsive polish.</p>
+
+          <!-- Mood quick tips -->
+          <ul class="mt-4 grid grid-cols-2 sm:grid-cols-3 gap-2 text-xs opacity-80">
+            <li>• Arrow keys to navigate moods</li>
+            <li>• Enter to select</li>
+            <li>• T to toggle theme</li>
+          </ul>
+        </div>
+
+        <!-- Mood Selector -->
+        <div class="flex flex-wrap gap-3" role="radiogroup" aria-label="Mood selector">
+          <button class="tap focus-ring mood-btn px-4 py-3 rounded-2xl bg-white/70 dark:bg-white/10 hover:bg-white/90 dark:hover:bg-white/20 lift transition shadow-glow" data-mood="happy" role="radio" aria-checked="false">
+            <span class="text-2xl mr-1" aria-hidden="true">😊</span> Happy
+          </button>
+          <button class="tap focus-ring mood-btn px-4 py-3 rounded-2xl bg-white/70 dark:bg.white/10 hover:bg-white/90 dark:hover:bg-white/20 lift transition shadow-glow" data-mood="chill" role="radio" aria-checked="false">
+            <span class="text-2xl mr-1" aria-hidden="true">😌</span> Chill
+          </button>
+          <button class="tap focus-ring mood-btn px-4 py-3 rounded-2xl bg-white/70 dark:bg-white/10 hover:bg-white/90 dark:hover:bg-white/20 lift transition shadow-glow" data-mood="focused" role="radio" aria-checked="false">
+            <span class="text-2xl mr-1" aria-hidden="true">🧠</span> Focused
+          </button>
+          <button class="tap focus-ring mood-btn px-4 py-3 rounded-2xl bg-white/70 dark:bg-white/10 hover:bg-white/90 dark:hover:bg-white/20 lift transition shadow-glow" data-mood="sad" role="radio" aria-checked="false">
+            <span class="text-2xl mr-1" aria-hidden="true">🥲</span> Sad
+          </button>
+          <button class="tap focus-ring mood-btn px-4 py-3 rounded-2xl bg-white/70 dark:bg-white/10 hover:bg-white/90 dark:hover:bg-white/20 lift transition shadow-glow" data-mood="excited" role="radio" aria-checked="false">
+            <span class="text-2xl mr-1" aria-hidden="true">⚡</span> Excited
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Results -->
+    <section class="mt-8 grid gap-6 md:grid-cols-3">
+      <!-- Live theme preview -->
+      <article class="glass rounded-3xl p-6 shadow-glow fade-up" style="animation-delay: .05s">
+        <header class="flex items-center justify-between">
+          <h3 class="font-bold text-lg">Theme Preview</h3>
+          <span id="currentMood" class="text-sm opacity-75">No mood selected</span>
+        </header>
+        <div class="mt-5 grid gap-3">
+          <div class="rounded-2xl h-28 w-full" id="previewGradient"></div>
+          <div class="grid grid-cols-3 gap-3">
+            <div class="rounded-2xl h-16 w-full" id="swatchA"></div>
+            <div class="rounded-2xl h-16 w-full" id="swatchB"></div>
+            <div class="rounded-2xl h-16 w-full" id="swatchC"></div>
+          </div>
+          <button id="copyPalette" class="mt-2 tap focus-ring px-4 py-2 rounded-xl bg-black/80 text-white dark:bg-white/80 dark:text-black hover:opacity-90 transition w-fit">Copy palette JSON</button>
+          <p id="copied" class="text-xs opacity-70 hidden">Copied!</p>
+        </div>
+      </article>
+
+      <!-- Music suggestions -->
+      <article class="glass rounded-3xl p-6 shadow-glow fade-up" style="animation-delay: .1s">
+        <header class="flex items-center justify-between">
+          <h3 class="font-bold text-lg">Music Suggestions</h3>
+          <button id="shuffle" class="tap focus-ring text-sm px-3 py-1.5 rounded-lg bg-white/70 dark:bg-white/10 hover:bg-white/90 dark:hover:bg-white/20 transition">Shuffle</button>
+        </header>
+        <ul id="trackList" class="mt-4 grid gap-3"></ul>
+      </article>
+
+      <!-- Notes / UX decisions -->
+      <article class="glass rounded-3xl p-6 shadow-glow fade-up" style="animation-delay: .15s">
+        <h3 class="font-bold text-lg">UX Decisions</h3>
+        <ul class="mt-3 space-y-2 text-sm opacity-90 list-disc pl-5">
+          <li><strong>Emotional design:</strong> Palette + animation shift with mood.</li>
+          <li><strong>Accessibility:</strong> Keyboard nav, focus ring, contrast-aware swatches.</li>
+          <li><strong>Micro-interactions:</strong> Lift, tap feedback, subtle fade‑ups.</li>
+          <li><strong>Persistence:</strong> Theme stored in <code>localStorage</code>.</li>
+          <li><strong>Modularity:</strong> Mood palettes + tracks as JSON → easy to extend.</li>
+        </ul>
+        <div class="mt-4 text-xs opacity-70">
+          Tip: Fork this file, replace the <em>tracks</em> data with your own or wire it to the Spotify API later.
+        </div>
+      </article>
+    </section>
+
+    <!-- Footer -->
+    <footer class="mt-10 text-center text-xs opacity-80">
+      Built for internships • <span class="font-semibold">UI/UX showcase</span> • <span id="year"></span>
+    </footer>
+  </main>
+
+  <script>
+    const MOODS = {
+      happy: {
+        label: "Happy",
+        gradient: [[255, 180, 64], [255, 105, 180]], // warm sunrise → pink
+        swatches: ["#FFD166", "#FF7AB6", "#4ADE80"],
+        tracks: [
+          { title: "Sunlit Streets", artist: "Nova", emoji: "🌞" },
+          { title: "Candy Clouds", artist: "Bloom", emoji: "🍭" },
+          { title: "Bright Side", artist: "Velvet", emoji: "🌈" }
+        ]
+      },
+      chill: {
+        label: "Chill",
+        gradient: [[94, 234, 212], [147, 197, 253]], // teal → soft blue
+        swatches: ["#67E8F9", "#93C5FD", "#A78BFA"],
+        tracks: [
+          { title: "Evening Tide", artist: "Marin", emoji: "🌊" },
+          { title: "Lo‑Fi Lanes", artist: "Tapeheads", emoji: "📼" },
+          { title: "Moon Window", artist: "Nearfield", emoji: "🌙" }
+        ]
+      },
+      focused: {
+        label: "Focused",
+        gradient: [[59, 130, 246], [16, 185, 129]], // blue → green
+        swatches: ["#3B82F6", "#10B981", "#111827"],
+        tracks: [
+          { title: "Deep Work", artist: "Cortex", emoji: "🧩" },
+          { title: "Laser Lines", artist: "Vector", emoji: "🔦" },
+          { title: "Quiet Power", artist: "Greybox", emoji: "⚙️" }
+        ]
+      },
+      sad: {
+        label: "Sad",
+        gradient: [[99, 102, 241], [55, 65, 81]], // indigo → slate
+        swatches: ["#818CF8", "#6B7280", "#1F2937"],
+        tracks: [
+          { title: "Soft Rain", artist: "Drift", emoji: "🌧️" },
+          { title: "Blue Hour", artist: "Iris", emoji: "🫧" },
+          { title: "Hold On", artist: "Paperwing", emoji: "🕊️" }
+        ]
+      },
+      excited: {
+        label: "Excited",
+        gradient: [[255, 65, 108], [255, 75, 43]], // neon pink → orange
+        swatches: ["#FF416C", "#FF4B2B", "#FBBF24"],
+        tracks: [
+          { title: "Voltage", artist: "Arc", emoji: "⚡" },
+          { title: "Lift Off", artist: "Apex", emoji: "🚀" },
+          { title: "Neon City", artist: "Pulse", emoji: "🌆" }
+        ]
+      }
+    };
+
+    let currentMood = null;
+
+    const bg = document.getElementById('bg');
+    const moodButtons = [...document.querySelectorAll('.mood-btn')];
+    const currentMoodEl = document.getElementById('currentMood');
+    const previewGradient = document.getElementById('previewGradient');
+    const swatchA = document.getElementById('swatchA');
+    const swatchB = document.getElementById('swatchB');
+    const swatchC = document.getElementById('swatchC');
+    const trackList = document.getElementById('trackList');
+    const shuffleBtn = document.getElementById('shuffle');
+    const copyPaletteBtn = document.getElementById('copyPalette');
+    const copiedEl = document.getElementById('copied');
+    const themeToggle = document.getElementById('themeToggle');
+
+    const savedTheme = localStorage.getItem('mw-theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    if (savedTheme === 'dark') {
+      document.documentElement.classList.add('dark');
+      themeToggle.checked = true;
+      themeToggle.setAttribute('aria-checked', 'true');
+    }
+
+    themeToggle.addEventListener('change', () => {
+      const dark = themeToggle.checked;
+      document.documentElement.classList.toggle('dark', dark);
+      themeToggle.setAttribute('aria-checked', dark ? 'true' : 'false');
+      localStorage.setItem('mw-theme', dark ? 'dark' : 'light');
+    });
+
+
+    function setGradient(node, aRGB, bRGB) {
+      const a = `rgba(${aRGB.join(',')}, 0.9)`;
+      const b = `rgba(${bRGB.join(',')}, 0.9)`;
+      node.style.background = `linear-gradient(135deg, ${a}, ${b})`;
+    }
+
+    function setBGGradient(aRGB, bRGB) {
+      document.documentElement.style.setProperty('--gradient-0', aRGB.join(','));
+      document.documentElement.style.setProperty('--gradient-1', bRGB.join(','));
+    }
+
+    function renderSwatches(swatches) {
+      [swatchA, swatchB, swatchC].forEach((el, i) => {
+        el.style.background = swatches[i];
+        el.setAttribute('aria-label', `Swatch ${i+1} ${swatches[i]}`);
+        el.style.boxShadow = 'inset 0 0 0 2px rgba(0,0,0,0.08), inset 0 0 0 4px rgba(255,255,255,0.08)';
+      });
+    }
+
+    function renderTracks(tracks) {
+      trackList.innerHTML = '';
+      tracks.forEach((t, i) => {
+        const li = document.createElement('li');
+        li.className = 'lift transition rounded-2xl p-3 bg-white/70 dark:bg-white/10 flex items-center justify-between gap-3';
+        li.innerHTML = `
+          <div class="flex items-center gap-3">
+            <div class="h-10 w-10 grid place-items-center rounded-xl bg-black/5 dark:bg-white/10 text-xl">${t.emoji}</div>
+            <div>
+              <div class="font-semibold leading-tight">${t.title}</div>
+              <div class="text-xs opacity-75">${t.artist}</div>
+            </div>
+          </div>
+          <button class="tap focus-ring text-xs px-3 py-1.5 rounded-lg bg-black/80 text-white dark:bg-white/80 dark:text-black hover:opacity-90" aria-label="Play preview of ${t.title}">Play</button>
+        `;
+        // Fake play behavior
+        li.querySelector('button').addEventListener('click', () => {
+          li.querySelector('button').textContent = 'Playing…';
+          setTimeout(() => li.querySelector('button').textContent = 'Play', 1000);
+        });
+        trackList.appendChild(li);
+      });
+    }
+
+    function applyMood(moodKey) {
+      const mood = MOODS[moodKey];
+      currentMood = moodKey;
+
+      // Update UI state
+      moodButtons.forEach(btn => btn.setAttribute('aria-checked', btn.dataset.mood === moodKey ? 'true' : 'false'));
+      currentMoodEl.textContent = mood ? mood.label : 'No mood selected';
+
+      // Background + preview
+      setBGGradient(mood.gradient[0], mood.gradient[1]);
+      setGradient(previewGradient, mood.gradient[0], mood.gradient[1]);
+
+      // Swatches + tracks
+      renderSwatches(mood.swatches);
+      renderTracks(mood.tracks);
+
+      // Persist mood
+      localStorage.setItem('mw-mood', moodKey);
+    }
+    moodButtons.forEach(btn => {
+      btn.addEventListener('click', () => applyMood(btn.dataset.mood));
+    });
+
+    shuffleBtn.addEventListener('click', () => {
+      if (!currentMood) return;
+      const list = [...MOODS[currentMood].tracks];
+      for (let i = list.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [list[i], list[j]] = [list[j], list[i]];
+      }
+      renderTracks(list);
+    });
+
+    copyPaletteBtn.addEventListener('click', async () => {
+      if (!currentMood) return;
+      const { gradient, swatches, label } = MOODS[currentMood];
+      const payload = { mood: currentMood, label, gradient, swatches };
+      try {
+        await navigator.clipboard.writeText(JSON.stringify(payload, null, 2));
+        copiedEl.classList.remove('hidden');
+        setTimeout(() => copiedEl.classList.add('hidden'), 1200);
+      } catch (e) {
+        alert('Copy failed. Your browser may block clipboard access.');
+      }
+    });
+
+    // Keyboard accessibility
+    let idx = 0;
+    function focusMood(index) { moodButtons[index]?.focus(); }
+    document.addEventListener('keydown', (e) => {
+      const key = e.key.toLowerCase();
+      if (['arrowright','arrowdown'].includes(key)) { idx = (idx + 1) % moodButtons.length; focusMood(idx); }
+      if (['arrowleft','arrowup'].includes(key)) { idx = (idx - 1 + moodButtons.length) % moodButtons.length; focusMood(idx); }
+      if (key === 'enter') { moodButtons[idx]?.click(); }
+      if (key === 't') { themeToggle.checked = !themeToggle.checked; themeToggle.dispatchEvent(new Event('change')); }
+    });
+
+    const savedMood = localStorage.getItem('mw-mood');
+    if (savedMood && MOODS[savedMood]) {
+      applyMood(savedMood);
+      const startIndex = Object.keys(MOODS).indexOf(savedMood);
+      if (startIndex >= 0) idx = startIndex;
+    }
+
+    document.getElementById('year').textContent = new Date().getFullYear();
+  </script>
+</body>
+</html>
